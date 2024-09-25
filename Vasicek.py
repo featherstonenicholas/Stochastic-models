@@ -46,4 +46,4 @@ def vasicek_call(T_0,T_1,K,theta,kappa,sigma,r_0):
    
     return call
 
-print(vasicek_call(T_0,T_1,K,theta,kappa,sigma,r_0))
+print(gamma(0,1,1.00000000000001,theta,kappa,sigma,r_0))

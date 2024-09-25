@@ -108,3 +108,4 @@ def objectiveFunction(par):
 
 x = minimize(objectiveFunction, x0=[0.01,0.03])
 #print(x)
+print(kappa)
