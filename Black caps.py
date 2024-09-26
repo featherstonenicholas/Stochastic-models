@@ -78,11 +78,28 @@ def BlackVega(delt,Z,fwds,T,sig,M,k):
         cplt_Vega = delt*Z[i+1]*fwds[i]*np.sqrt(T[i])*norm.pdf(d1,0,1)
         myAns = myAns + cplt_Vega
     return myAns
+def BachCap(sig,k,fwds,T,M,delt,Z):
+    myAns = 0
+    
+    jump=int(1/delta)
+    for i in range(1, (jump*M)):
+        D= (fwds[i]-k)/(sig*np.sqrt(T[i]))
+       
+        cplt_i = delt*Z[i+1]*sig*np.sqrt(T[i])*(D*norm.cdf(D,0,1) +norm.pdf(D,0,1))
+        
+        myAns = myAns + cplt_i
+    return myAns
 
 def black_imp_vol(ForwardRates,T0,m,delta,kappa,ZeroBondPrices,CapPrice):
     BCap = lambda iv: BlackCap(iv,kappa,ForwardRates,T0,m,delta,ZeroBondPrices)-CapPrice
     imp=bisect(BCap,0.005,10)
     return imp
+def bach_imp_vol(ForwardRates,T0,M,delta,k,ZeroBondPrices,CapPrice):
+    BCap = lambda iv: BachCap(iv,k,ForwardRates,T0,M,delta,ZeroBondPrices)-CapPrice
+    imp=bisect(BCap,0.005,10)
+    return imp
+
+
 print('Cap Prices',CapPrices)
 print('Maturities', Maturities)
 print('Forward rates',ForwardRates)
@@ -92,4 +109,6 @@ print('Forward swaps',kappa)
 
 
 print(BlackCap(0.141,kappa[0],ForwardRates,T0,2,delta,ZeroBondPrices))
-print(black_imp_vol(ForwardRates,T0,2,delta,kappa[0],ZeroBondPrices,CapPrices[0]))
+print('Black implied volatility',black_imp_vol(ForwardRates,T0,2,delta,kappa[0],ZeroBondPrices,CapPrices[0]))
+print('Bachelier implied volatility',bach_imp_vol(ForwardRates,T0,2,delta,kappa[0],ZeroBondPrices,0.01))
+CapVasicek(0.86,0.0148,kappa[0],T0,M,delta,Z)

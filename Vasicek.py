@@ -1,13 +1,17 @@
 import numpy as np
 from scipy.stats import norm
 #Price a ZCP using Vasicek model
+# set up model parameters
 
-theta=0.08
+theta=0.09
 kappa=0.86
-sigma=0.01
-r_0=0.06
+sigma=0.0148
+r_0=0.08
 T_0=1
 T_1=1.25
+
+#price a bond using vasicek model
+
 def vasicek_bond(t,T,theta,kappa,sigma,r_0):
     #calculate sub parts
     B=(1-np.exp(-kappa*(T-t)))/kappa
@@ -45,5 +49,11 @@ def vasicek_call(T_0,T_1,K,theta,kappa,sigma,r_0):
     call=P_1*norm.cdf(d_1) - K*P_0*norm.cdf(d_2)
    
     return call
+ZCB=np.ones(120)
+T0=0.25*np.arange(120)
+delta=0.25
+for i in range(120):
+    ZCB[i]=vasicek_bond(0,T0[i],theta,kappa,sigma,r_0)
 
-print(gamma(0,1,1.00000000000001,theta,kappa,sigma,r_0))
+K = (ZCB[1] - ZCB[2*m]) / (delta*sum(ZCB[2:]))
+print(K)
