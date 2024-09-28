@@ -3,12 +3,12 @@ from scipy.stats import norm
 #Price a ZCP using Vasicek model
 # set up model parameters
 
-theta=0.09
+theta=0.08
 kappa=0.86
-sigma=0.0148
-r_0=0.08
+sigma=0.01
+r_0=0.06
 T_0=1
-T_1=1.25
+T_1=2
 
 #price a bond using vasicek model
 
@@ -20,8 +20,8 @@ def vasicek_bond(t,T,theta,kappa,sigma,r_0):
     
     return np.exp(-A +B - C)
 
-#P_0=vasicek_bond(0,T_0,theta,kappa,sigma,r_0)
-#P_1=vasicek_bond(0,T_1,theta,kappa,sigma,r_0)
+P_0=vasicek_bond(0,T_0,theta,kappa,sigma,r_0)
+P_1=vasicek_bond(0,T_1,theta,kappa,sigma,r_0)
 
 
 # calculare convexity adjustment T_0 to T_1
@@ -73,4 +73,7 @@ def CapVasicek(b,nu,k,T,M,delta,Z):
         #print(cplt_i)
         myAns = myAns + cplt_i 
     return myAns
-print(CapVasicek(kappa,sigma,K,T0,30,delta,ZCB))
+#print(CapVasicek(kappa,sigma,K,T0,30,delta,ZCB))
+vol=(sigma**2/kappa**2)*((np.exp(-kappa*T_0)-np.exp(-kappa*T_1))**2)*(np.exp(2*kappa*T_0)-1)/(2*kappa)
+mu=np.log(P_0/P_1)+vol
+print(np.sqrt(vol))

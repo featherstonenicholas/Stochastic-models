@@ -90,6 +90,32 @@ def BachCap(sig,k,fwds,T,M,delta,Z):
         myAns = myAns + cplt_i
     return myAns
 
+def BlackSwaption(sigma,k,N,T0,Tn,delta,Z):
+    myans=0
+    start=int(T0/delta)
+    end=int(Tn/delta)
+    Rswap=(Z[start]-Z[end])/(delta*sum(Z[start+1:end+1]))
+    if k=='atm':
+        k=Rswap
+   
+    d1=(np.log(Rswap/k)+0.5*sigma**2*(T0))/(sigma*np.sqrt(T0))
+    d2=(np.log(Rswap/k)-0.5*sigma**2*(T0))/(sigma*np.sqrt(T0))
+    for i in range(start+1,end+1):
+        myans+=Z[i]*(Rswap*norm.cdf(d1,0,1)-k*norm.cdf(d2,0,1))
+    return N*delta*myans
+def BachSwaption(sigma,k,N,T0,Tn,delta,Z):
+    myans=0
+    start=int(T0/delta)
+    end=int(Tn/delta)
+    Rswap=(Z[start]-Z[end])/(delta*sum(Z[start+1:end+1]))
+    if k=='atm':
+        k=Rswap
+   
+    D=(Rswap-k)/(sigma*np.sqrt(T0))
+    
+    for i in range(start+1,end+1):
+        myans+=Z[i]*sigma*np.sqrt(T0)*(D*norm.cdf(D,0,1)+norm.pdf(D,0,1))
+    return N*delta*myans
 def black_imp_vol(ForwardRates,T0,m,delta,kappa,ZeroBondPrices,CapPrice):
     BCap = lambda iv: BlackCap(iv,kappa,ForwardRates,T0,m,delta,ZeroBondPrices)-CapPrice
     imp=bisect(BCap,0.005,10)
@@ -98,7 +124,14 @@ def bach_imp_vol(ForwardRates,T0,M,delta,k,ZeroBondPrices,CapPrice):
     BCap = lambda iv: BachCap(iv,k,ForwardRates,T0,M,delta,ZeroBondPrices)-CapPrice
     imp=bisect(BCap,0.005,10)
     return imp
-
+def black_swaption_imp_vol(price,k,N,T0,Tn,delta,Z):
+    Btemp= lambda iv: BlackSwaption(iv,k,N,T0,Tn,delta,Z)-price
+    imp=bisect(Btemp,0.005,10)
+    return imp
+def bach_swaption_imp_vol(price,k,N,T0,Tn,delta,Z):
+    Btemp= lambda iv: BachSwaption(iv,k,N,T0,Tn,delta,Z)-price
+    imp=bisect(Btemp,0.005,10)
+    return imp
 
 print('Cap Prices',CapPrices)
 print('Maturities', Maturities)
@@ -112,3 +145,6 @@ print(BlackCap(0.141,kappa[0],ForwardRates,T0,2,delta,ZeroBondPrices))
 print('Black implied volatility',black_imp_vol(ForwardRates,T0,2,delta,kappa[0],ZeroBondPrices,CapPrices[0]))
 print('Bachelier implied volatility',bach_imp_vol(ForwardRates,T0,2,delta,kappa[0],ZeroBondPrices,0.01))
 print(BachCap(0.0144,kappa[0],ForwardRates,T0,2,delta,ZeroBondPrices))
+print('Black implied vol on 0.01 swaption ', black_swaption_imp_vol(0.01,'atm',1,1,2,delta,ZeroBondPrices))
+print('Bachelier implied vol on 0.01 swaption ', bach_swaption_imp_vol(0.01,'atm',1,1,2,delta,ZeroBondPrices))
+print('Black Swaption price for vol of 0.5 ',BlackSwaption(0.5,'atm',1,1,2,delta,ZeroBondPrices))
